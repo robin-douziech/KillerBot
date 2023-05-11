@@ -1,0 +1,10 @@
+{
+  "day": 0,
+  "event": "",
+  "gazette": [],
+  "game_started": false,
+  "players_alive": [],
+  "kills_count": 0,
+  "clock_hours_offset": 2,
+  "deaths_annouce_limit": 5
+}
