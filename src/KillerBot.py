@@ -96,13 +96,6 @@ class KillerBot(commands.Bot) :
 		await self.bot_channel.send(msg)
 		self.log(f"flash info envoyé ! state: {state} / nb_deaths: {nb_deaths}")
 
-	def dump_circle(self, player_list) :
-
-		msg = f""
-		for member in player_list :
-			msg += f"{member} => {self.members[member]['target']}\n"
-		return msg
-
 	#===============================#
 	# WRINTING THINGS IN JSON FILES #
 	#===============================#
@@ -367,17 +360,17 @@ class KillerBot(commands.Bot) :
 			for member in liste_joueurs_morts :
 				msg += f"- {member}\n"
 			msg += f"\u200B"
-			self.informer(msg)
+			await self.informer(msg)
 			msg = f"**[VILLE FANTÔME]** - :ghost::house_abandoned: [:dart:] Cibles reçues par les joueurs morts :\n\n"
 			for member in liste_joueurs_morts :
 				msg += f"- {member} ===> {self.events['ville fantôme'][member]['target']}\n"
 			msg += f"\u200B"
-			self.informer(msg)
+			await self.informer(msg)
 			msg = f"**[VILLE FANTÔME]** - :ghost::house_abandoned: [:ballot_box_with_check:] Missions reçues par les joueurs morts :\n\n"
 			for member in liste_joueurs_morts :
 				msg += f"- {member} : {self.events['ville fantôme'][member]['mission'][::-1]}\n"
 			msg += f"\u200B"
-			self.informer(msg)
+			await self.informer(msg)
 
 			msg_channel =  f"**[Événement quotidien : ville fantôme]**\n"
 			msg_channel += f"Aujourd'hui, les morts reviennent à la vie !"
@@ -843,6 +836,7 @@ class KillerBot(commands.Bot) :
 								self.vars['players_alive'] = player_list
 
 								self.events["ville fantôme"]["active"] = True
+								self.events['paranoïa']['active'] = True
 
 								for member in player_list :
 									self.members[member]["state"] = "en vie"
@@ -982,25 +976,6 @@ class KillerBot(commands.Bot) :
 
 						await self.winrate_ranking()
 
-					#======================#
-					# AFFICHER LES MEMBRES #
-					#======================#
-
-					elif re.match(r".*[Aa]ffiche les membres.*", message.content) :
-
-						res = f""
-						if self.vars['game_started'] :
-
-							for member in self.members :
-								res += f"- {member}\n"
-
-						else :
-
-							for member in self.members :
-								res += f"- {member} ({self.members[member]['state']})\n"
-
-						await self.log_channel.send(res)
-
 					#=======================#
 					# DÉMARRER UN ÉVÉNEMENT #
 					#=======================#
@@ -1012,22 +987,6 @@ class KillerBot(commands.Bot) :
 						self.write_vars()
 
 						await self.process_event()
-
-					#=====================#
-					# DUMP CIRCLE (DEBUG) #
-					#=====================#
-
-					#elif re.match(r"circle", message.content.lower()) :
-
-					#	await dm_channel.send(self.dump_circle(self.vars['players_alive']))
-
-					#=================#
-					# ANNONCE (DEBUG) #
-					#=================#
-
-					elif re.match(r".*annonce.*", message.content) :
-
-						await self.annonce()
 
 					#====================#
 					# ÉTEINDRE KILLERBOT #
@@ -1491,8 +1450,8 @@ class KillerBot(commands.Bot) :
 
 					if self.vars['game_started'] :
 
-						# si (le joueur est non-inscrit) OU (le joueur est mort ET la ville fantôme est passée ET la ville fantôme est finie)
-						if (self.members[author_name]["state"] == "non-inscrit") or (self.members[author_name]["state"] == "mort" and not(self.events["ville fantôme"]["active"]) and self.vars["event"] != "ville fantôme") :
+						#si(           le membre n'est pas inscrit             ) ou (      le membre est mort                      et ((    on est pendant la ville fantome    et           il ne participe pas à la ville fantome              ) ou          la ville fantôme est passée))    
+						if (self.members[author_name]['state'] == "non-inscrit") or (self.members[author_name]['state'] == "mort" and ((self.vars['event'] == "ville fantôme" and author_name not in self.events['ville fantôme']['liste_morts']) or self.events['ville fantôme']['done'])) :
 
 							self.members[author_name]["other_questions"].append(f"info message ?")
 							self.members[author_name]["other_questions"].append(f"get informed ?")
@@ -1689,6 +1648,35 @@ class KillerBot(commands.Bot) :
 						"Bernadette"
 					]
 					await dm_channel.send(f"C'est noté, désormais tu t'appelles {liste_prenoms[random.randint(0,len(liste_prenoms)-1)]}")
+
+				elif re.match(r"[Rr][ée]cap", message.content) :
+
+					if self.vars['game_started'] :
+
+						if (self.members[author_name]['state'] == "non-inscrit") or (self.members[author_name]['state'] == "mort" and ((self.vars['event'] == "ville fantôme" and author_name not in self.events['ville fantôme']['liste_morts']) or self.events['ville fantôme']['done'])) :
+
+
+							msg = f"Voici l'état actuel de la partie :\n\n"
+
+							msg += f"Cibles :\n"
+							for member in self.members :
+								if self.members[member]['state'] == "en vie" :
+									msg += f"- {member} ===> {self.members[member]['target']}\n"
+
+							msg += f"\nMissions :\n"
+							for member in self.members :
+								if self.members[member]['state'] == "en vie" :
+									msg += f"- mission de {member} : {self.members[member]['mission to do'][::-1]}\n"
+
+							await dm_channel.send(msg)
+
+						else :
+
+							await dm_channel.send(f"T'as cru quoi ? je donne pas ce genre d'info à des joueurs encore en vie")
+
+					else :
+
+						await dm_channel.send(f"Aucune partie en cours")
 
 				elif message.author.id != bot_owner_id :
 

@@ -1,9 +1,23 @@
 {
-  "day": 0,
-  "event": "",
-  "gazette": [],
-  "game_started": false,
-  "players_alive": [],
+  "day": 1,
+  "event": "killer guess",
+  "gazette": [
+    ":newspaper: **=======[La gazette des gens morts]=======** :newspaper:\n\u200b",
+    ":checkered_flag: **[D\u00e9but de la partie]**\n\u200b",
+    ":memo: __Inscriptions__ :\n\n- M1k3y-test1#0781 a invent\u00e9 la mission suivante : mission1\n- M1k3y-test2#4538 a invent\u00e9 la mission suivante : mission2\n- M1k3y-test3#8855 a invent\u00e9 la mission suivante : mission3\n- M1k3y-test4#2970 a invent\u00e9 la mission suivante : mission4\n\n\u200b",
+    ":ballot_box_with_check: __Missions re\u00e7ues__ :\n\n- M1k3y-test1#0781 a re\u00e7u la mission suivante : mission3\n- M1k3y-test2#4538 a re\u00e7u la mission suivante : mission4\n- M1k3y-test3#8855 a re\u00e7u la mission suivante : mission2\n- M1k3y-test4#2970 a re\u00e7u la mission suivante : mission1\n\n\u200b",
+    ":dart: __Cibles re\u00e7ues__ :\n\n- M1k3y-test1#0781 ===> M1k3y-test4#2970\n- M1k3y-test2#4538 ===> M1k3y-test3#8855\n- M1k3y-test3#8855 ===> M1k3y-test1#0781\n- M1k3y-test4#2970 ===> M1k3y-test2#4538\n\n\u200b",
+    "**[D\u00e9roulement de la partie]**\n\u200b",
+    "#================ JOUR :one: ================#\n\u200b",
+    "__\u00c9v\u00e9nement du jour__ : killer guess\n\u200b"
+  ],
+  "game_started": true,
+  "players_alive": [
+    "M1k3y-test4#2970",
+    "M1k3y-test2#4538",
+    "M1k3y-test3#8855",
+    "M1k3y-test1#0781"
+  ],
   "kills_count": 0,
   "clock_hours_offset": 2,
   "deaths_annouce_limit": 5

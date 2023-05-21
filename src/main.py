@@ -130,6 +130,21 @@ async def on_ready() :
 	with open(bot.vars_file, "rt") as f_vars :
 		bot.vars = json.load(f_vars)
 
+	default_vars = {
+		"day": 0,
+		"event": "",
+		"gazette": [],
+		"game_started": False,
+		"players_alive": [],
+		"kills_count": 0,
+		"clock_hours_offset": 2,
+		"deaths_annouce_limit": 5
+	}
+
+	if bot.vars == {} :
+		bot.vars = default_vars
+		bot.write_vars()
+
 	##########################
 	# RÉCUPÉRATION DES INFOS #
 	##########################
@@ -145,18 +160,20 @@ async def on_ready() :
 		bot.events = json.load(f_events)
 
 	# rumeurs
-	for member in bot.members :
-		if member not in bot.events["rumeurs"] :
+	if not(bot.vars['game_started']) :
+		for member in bot.members :
 			bot.events["rumeurs"][member] = ""
 
 	#killer guess
-	for member in bot.members :
-		if member not in bot.events["killer guess"] :
+	if not(bot.vars['game_started']) :
+		for member in bot.members :
 			bot.events["killer guess"][member] = ""
 
 	# ville fantôme
-	for member in bot.members :
-		if member not in bot.events["ville fantôme"] :
+	if not(bot.vars['game_started']) :
+		bot.events['ville fantôme']["liste_morts"] = []
+		bot.events['ville fantôme']['done'] = False
+		for member in bot.members :
 			bot.events["ville fantôme"][member] = {
 				"previous target": "",
 				"target" : "",
@@ -295,6 +312,9 @@ async def clock() :
 				bot.events['ville fantôme']['active'] = False
 				bot.events['paranoïa']['active'] = False
 
+			if bot.events['ville fantôme']['done'] :
+				bot.events['ville fantôme']['active'] = False				
+
 			# choisir un event
 			bot.vars["event"] = bot.choose_event()
 			await bot.process_event()
@@ -302,6 +322,7 @@ async def clock() :
 			# désactiver ville fantôme si on tombe dessus
 			if bot.vars["event"] == "ville fantôme" :
 				bot.events["ville fantôme"]["active"] = False
+				bot.events["ville fantôme"]["done"] = True
 
 			# la gazette des gens morts
 			numbers = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]
